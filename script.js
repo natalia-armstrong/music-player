@@ -5,6 +5,9 @@ const song = document.getElementById('audio');
 const play = document.getElementById('play');
 const next = document.getElementById('next');
 const previous = document.getElementById('previous');
+const currentProgress = document.getElementById('current-progress')
+const progressContainer = document.getElementById('progress-container')
+const shuffle = document.getElementById('shuffle')
 
 
 const yoko = {
@@ -28,7 +31,9 @@ const aindaMeLembro = {
 
 
 let isPlaying = false;
-const playlist = [yoko, inteiroMetade, aindaMeLembro];
+let isShuffled = false;
+const originalPlaylist = [yoko, inteiroMetade, aindaMeLembro];
+let sortedPlaylist = [...originalPlaylist];
 let index = 1;
 
 function playSong(){
@@ -55,15 +60,15 @@ function playPauseDecider(){
 }
 
 function loadSong(){
-    cover.src = `imagens/${playlist[index].fileCover}.png`;
-    song.src = `songs/${playlist[index].fileSong}.mp3`;
-    songName.innerText = playlist[index].songName;
-    bandName.innerText = playlist[index].artist;
+    cover.src = `imagens/${sortedPlaylist[index].fileCover}.png`;
+    song.src = `songs/${sortedPlaylist[index].fileSong}.mp3`;
+    songName.innerText = sortedPlaylist[index].songName;
+    bandName.innerText = sortedPlaylist[index].artist;
 }
 
 function previousSong(){
     if(index === 0){
-        index = playlist.length - 1;
+        index = sortedPlaylist.length - 1;
     }
     else {
         index -= 1;
@@ -73,7 +78,7 @@ function previousSong(){
 }
 
 function nextSong(){
-    if(index === playlist.length - 1){
+    if(index === sortedPlaylist.length - 1){
         index = 0;
     }
     else {
@@ -83,8 +88,28 @@ function nextSong(){
     playSong();
 }
 
+function updateProgressBar(){
+    const barWidth = (song.currentTime/song.duration)*100;
+    currentProgress.style.setProperty('--progress', `${barWidth}%`)
+}
+
+function jumpTo(event){
+    const progressContainerWidth = progressContainer.clientWidth;
+    const clickPosition = event.offsetX;
+    song.currentTime = (clickPosition/progressContainerWidth)*song.duration;
+}
+
+function shuffleSongs(){
+    if(isShuffled === false){
+        isShuffled = true
+}
+}
+
 loadSong();
 
 play.addEventListener('click', playPauseDecider);
 previous.addEventListener('click', previousSong);
-next.addEventListener('click', nextSong)
+next.addEventListener('click', nextSong);
+song.addEventListener('timeupdate', updateProgressBar);
+progressContainer.addEventListener('click', jumpTo)
+shuffle.addEventListener('click', suffleSongs)
